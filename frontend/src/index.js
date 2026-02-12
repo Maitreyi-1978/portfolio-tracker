@@ -11,6 +11,7 @@ root.render(
     clientId="B6YSTxX5HsGW0WL2T3wKCBogPB9twTdf"
     authorizationParams={{
       redirect_uri: window.location.origin,
+      audience: "https://portfolio-tracker-api"
     }}
   >
     <App />
