@@ -12,7 +12,7 @@ API_AUDIENCE = "https://portfolio-api"
 @app.route("/")
 def home():
     return "Backend Running!"
-
+   
 @app.route("/protected")
 def protected():
     auth_header = request.headers.get("Authorization")
