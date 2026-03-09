@@ -62,11 +62,11 @@ function App() {
             {!isAuthenticated ? (
               <>
                 <Typography variant="h4" gutterBottom>
-                  Welcome 👋
+                  Welcome 👋 
                 </Typography>
 
                 <Typography variant="body1" sx={{ mb: 3 }}>
-                  Please login securely using Auth0 to access your portfolio dashboard.
+                  Please click to login here 
                 </Typography>
 
                 <Button
