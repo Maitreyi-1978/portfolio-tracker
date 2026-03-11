@@ -17,6 +17,13 @@ function App() {
   const { loginWithRedirect, logout, user, isAuthenticated, isLoading } =
     useAuth0();
 
+  
+  const handleLogout = () => {
+    logout({
+      logoutParams: { returnTo: window.location.origin }
+    });
+  };
+
   if (isLoading) {
     return (
       <Box
@@ -32,7 +39,7 @@ function App() {
 
   return (
     <>
-      {/* Top Navbar */}
+      
       <AppBar position="static" elevation={2}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -41,13 +48,9 @@ function App() {
 
           {isAuthenticated && (
             <Button
-              color="inherit"
+              color="secondary "
               variant="outlined"
-              onClick={() =>
-                logout({
-                  logoutParams: { returnTo: window.location.origin }
-                })
-              }
+              onClick={handleLogout}
             >
               Logout
             </Button>
@@ -55,18 +58,18 @@ function App() {
         </Toolbar>
       </AppBar>
 
-      {/* Main Content */}
+     
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Card elevation={6} sx={{ p: 4, textAlign: "center" }}>
           <CardContent>
             {!isAuthenticated ? (
               <>
                 <Typography variant="h4" gutterBottom>
-                  Welcome 👋 
+                  Welcome 👋
                 </Typography>
 
                 <Typography variant="body1" sx={{ mb: 3 }}>
-                  Please click to login here 
+                  Please click to login here 😊.
                 </Typography>
 
                 <Button
@@ -74,7 +77,7 @@ function App() {
                   size="large"
                   onClick={() => loginWithRedirect()}
                 >
-                  Login with Auth0
+                  Login 😉
                 </Button>
               </>
             ) : (
@@ -90,17 +93,13 @@ function App() {
                 </Typography>
 
                 <Typography variant="body2" sx={{ mb: 3 }}>
-                  You are successfully authenticated.
+                  You are successfully authenticated 🎉🥳🎊🎈.
                 </Typography>
 
                 <Button
                   variant="contained"
                   color="error"
-                  onClick={() =>
-                    logout({
-                      logoutParams: { returnTo: window.location.origin }
-                    })
-                  }
+                  onClick={handleLogout}
                 >
                   Logout
                 </Button>
