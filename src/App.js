@@ -14,14 +14,34 @@ import {
 } from "@mui/material";
 
 function App() {
-  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } =
-    useAuth0();
 
-  
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading, getAccessTokenSilently } 
+  = useAuth0();
+
   const handleLogout = () => {
     logout({
       logoutParams: { returnTo: window.location.origin }
     });
+  };
+
+  const callSecureApi = async () => {
+    try {
+
+      const token = await getAccessTokenSilently();
+
+      const response = await fetch("http://localhost:8000/api/data", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+      alert(JSON.stringify(data));
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (isLoading) {
@@ -48,7 +68,7 @@ function App() {
 
           {isAuthenticated && (
             <Button
-              color="secondary "
+              color="secondary"
               variant="outlined"
               onClick={handleLogout}
             >
@@ -58,11 +78,12 @@ function App() {
         </Toolbar>
       </AppBar>
 
-     
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Card elevation={6} sx={{ p: 4, textAlign: "center" }}>
           <CardContent>
+
             {!isAuthenticated ? (
+
               <>
                 <Typography variant="h4" gutterBottom>
                   Welcome 👋
@@ -80,7 +101,9 @@ function App() {
                   Login 😉
                 </Button>
               </>
+
             ) : (
+
               <>
                 <Avatar
                   src={user.picture}
@@ -103,8 +126,19 @@ function App() {
                 >
                   Logout
                 </Button>
+
+                <Button
+                  variant="contained"
+                  sx={{ mt: 2 }}
+                  onClick={callSecureApi}
+                >
+                  Get Secure Data
+                </Button>
+
               </>
+
             )}
+
           </CardContent>
         </Card>
       </Container>
