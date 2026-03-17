@@ -31,7 +31,7 @@ root.render(
       domain="dev-ss2qtfzv7kx40kuw.us.auth0.com"
       clientId="B6YSTxX5HsGW0WL2T3wKCBogPB9twTdf"
       authorizationParams={{
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin
       }}
     >
       <ThemeProvider theme={theme}>
