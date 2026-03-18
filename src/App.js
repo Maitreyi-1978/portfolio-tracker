@@ -15,8 +15,14 @@ import {
 
 function App() {
 
-  const { loginWithRedirect, logout, user, isAuthenticated, isLoading, getAccessTokenSilently } 
-  = useAuth0();
+  const {
+    loginWithRedirect,
+    logout,
+    user,
+    isAuthenticated,
+    isLoading,
+    getAccessTokenSilently
+  } = useAuth0();
 
   const handleLogout = () => {
     logout({
@@ -26,21 +32,42 @@ function App() {
 
   const callSecureApi = async () => {
     try {
+      console.log("🔹 Step 1: Getting token from Auth0...");
 
-      const token = await getAccessTokenSilently();
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: "https://portfolio-tracker-api"
+        }
+      });
 
-      const response = await fetch("http://localhost:8000/api/data", {
+      console.log("✅ Token received:", token);
+
+      console.log("🔹 Step 2: Calling FastAPI backend...");
+
+      const response = await fetch("http://127.0.0.1:8000/api/data", {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log("🔹 Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Backend error:", errorText);
+        alert("Backend Error: " + errorText);
+        return;
+      }
+
       const data = await response.json();
-      console.log(data);
-      alert(JSON.stringify(data));
+
+      console.log("✅ API Response:", data);
+      alert("Success: " + JSON.stringify(data));
 
     } catch (error) {
-      console.error(error);
+      console.error("❌ ERROR:", error);
+      alert("Error: " + error.message);
     }
   };
 
@@ -59,7 +86,6 @@ function App() {
 
   return (
     <>
-      
       <AppBar position="static" elevation={2}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -119,21 +145,24 @@ function App() {
                   You are successfully authenticated 🎉🥳🎊🎈.
                 </Typography>
 
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
+                <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
 
-                <Button
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                  onClick={callSecureApi}
-                >
-                  Get Secure Data
-                </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    onClick={callSecureApi}
+                  >
+                    Get Secure Data
+                  </Button>
+
+                </Box>
 
               </>
 
