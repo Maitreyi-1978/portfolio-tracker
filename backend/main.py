@@ -36,7 +36,7 @@ async def get_secure_data(request: Request):
     token = auth_header.split(" ")[1]
 
     try:
-        # Decode token without verification for demo
+        
         payload = jwt.get_unverified_claims(token)
 
         user_id = payload["sub"]
