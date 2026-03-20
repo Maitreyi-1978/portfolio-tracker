@@ -141,6 +141,16 @@ function App() {
                   Welcome, {user.name}
                 </Typography>
 
+                {/* ✅ NEW: Email */}
+                <Typography variant="body1">
+                  Email: {user.email}
+                </Typography>
+
+                {/* ✅ NEW: Auth0 User ID */}
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  User ID: {user.sub}
+                </Typography>
+
                 <Typography variant="body2" sx={{ mb: 3 }}>
                   You are successfully authenticated 🎉🥳🎊🎈.
                 </Typography>
