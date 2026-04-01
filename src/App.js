@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   AppBar,
@@ -10,7 +10,8 @@ import {
   CardContent,
   Avatar,
   CircularProgress,
-  Box
+  Box,
+  Grid
 } from "@mui/material";
 
 function App() {
@@ -24,25 +25,29 @@ function App() {
     getAccessTokenSilently
   } = useAuth0();
 
-  const handleLogout = () => {
-    logout({
-      logoutParams: { returnTo: window.location.origin }
-    });
+  // 💰 Wallet State
+  const [balance, setBalance] = useState(0);
+
+  // 📋 Tasks
+  const tasks = [
+    { id: 1, name: "Watch Video 🎥", reward: 10 },
+    { id: 2, name: "Download App 📲", reward: 20 },
+    { id: 3, name: "Refer Friend 👥", reward: 50 }
+  ];
+
+  // ✅ Complete Task
+  const completeTask = (reward) => {
+    setBalance((prev) => prev + reward);
   };
 
+  // 🔐 Secure API Call
   const callSecureApi = async () => {
     try {
-      console.log("🔹 Step 1: Getting token from Auth0...");
-
       const token = await getAccessTokenSilently({
         authorizationParams: {
           audience: "https://portfolio-tracker-api"
         }
       });
-
-      console.log("✅ Token received:", token);
-
-      console.log("🔹 Step 2: Calling FastAPI backend...");
 
       const response = await fetch("http://127.0.0.1:8000/api/data", {
         method: "GET",
@@ -51,34 +56,24 @@ function App() {
         },
       });
 
-      console.log("🔹 Response status:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Backend error:", errorText);
-        alert("Backend Error: " + errorText);
-        return;
-      }
-
       const data = await response.json();
-
-      console.log("✅ API Response:", data);
-      alert("Success: " + JSON.stringify(data));
+      alert("✅ " + JSON.stringify(data));
 
     } catch (error) {
-      console.error("❌ ERROR:", error);
-      alert("Error: " + error.message);
+      console.error(error);
+      alert("❌ Error fetching secure data");
     }
+  };
+
+  const handleLogout = () => {
+    logout({
+      logoutParams: { returnTo: window.location.origin }
+    });
   };
 
   if (isLoading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
       </Box>
     );
@@ -86,100 +81,124 @@ function App() {
 
   return (
     <>
-      <AppBar position="static" elevation={2}>
+      {/* 🔵 NAVBAR */}
+      <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Portfolio Tracker
+            💸 Earnify
           </Typography>
 
           {isAuthenticated && (
-            <Button
-              color="secondary"
-              variant="outlined"
-              onClick={handleLogout}
-            >
+            <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>
           )}
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <Card elevation={6} sx={{ p: 4, textAlign: "center" }}>
-          <CardContent>
+      <Container sx={{ mt: 5 }}>
 
-            {!isAuthenticated ? (
+        {!isAuthenticated ? (
 
-              <>
-                <Typography variant="h4" gutterBottom>
-                  Welcome 👋
+          <Card sx={{ p: 4, textAlign: "center" }}>
+            <Typography variant="h4">Welcome to Earnify 🚀</Typography>
+            <Typography sx={{ mt: 2 }}>
+              Complete tasks & earn rewards 💰
+            </Typography>
+
+            <Button
+              variant="contained"
+              sx={{ mt: 3 }}
+              onClick={() => loginWithRedirect()}
+            >
+              Login
+            </Button>
+          </Card>
+
+        ) : (
+
+          <Grid container spacing={3}>
+
+            {/* 👤 PROFILE */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ p: 3, textAlign: "center" }}>
+                <Avatar
+                  src={user.picture}
+                  sx={{ width: 80, height: 80, margin: "0 auto" }}
+                />
+                <Typography variant="h6" sx={{ mt: 2 }}>
+                  {user.name}
+                </Typography>
+                <Typography variant="body2">
+                  {user.email}
                 </Typography>
 
-                <Typography variant="body1" sx={{ mb: 3 }}>
-                  Please click to login here 😊.
+                <Typography sx={{ mt: 2 }}>
+                  Referral: {user.sub.slice(0, 6)}
+                </Typography>
+              </Card>
+            </Grid>
+
+            {/* 💰 WALLET */}
+            <Grid item xs={12} md={8}>
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h5">
+                  💰 Wallet Balance
+                </Typography>
+
+                <Typography variant="h4" sx={{ mt: 2 }}>
+                  ₹{balance}
                 </Typography>
 
                 <Button
                   variant="contained"
-                  size="large"
-                  onClick={() => loginWithRedirect()}
+                  sx={{ mt: 2 }}
+                  onClick={callSecureApi}
                 >
-                  Login 😉
+                  🔐 Verify & Fetch Rewards
                 </Button>
-              </>
+              </Card>
+            </Grid>
 
-            ) : (
+            {/* 📋 TASKS */}
+            <Grid item xs={12}>
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h5">📋 Available Tasks</Typography>
 
-              <>
-                <Avatar
-                  src={user.picture}
-                  alt={user.name}
-                  sx={{ width: 100, height: 100, margin: "0 auto 20px" }}
-                />
-
-                <Typography variant="h5" gutterBottom>
-                  Welcome, {user.name}
-                </Typography>
-
-                {/* ✅ NEW: Email */}
-                <Typography variant="body1">
-                  Email: {user.email}
-                </Typography>
-
-                {/* ✅ NEW: Auth0 User ID */}
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  User ID: {user.sub}
-                </Typography>
-
-                <Typography variant="body2" sx={{ mb: 3 }}>
-                  You are successfully authenticated 🎉🥳🎊🎈.
-                </Typography>
-
-                <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={handleLogout}
+                {tasks.map((task) => (
+                  <Box
+                    key={task.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 2,
+                      p: 2,
+                      border: "1px solid #ccc",
+                      borderRadius: "10px"
+                    }}
                   >
-                    Logout
-                  </Button>
+                    <Box>
+                      <Typography>{task.name}</Typography>
+                      <Typography variant="body2">
+                        Reward: ₹{task.reward}
+                      </Typography>
+                    </Box>
 
-                  <Button
-                    variant="contained"
-                    onClick={callSecureApi}
-                  >
-                    Get Secure Data
-                  </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => completeTask(task.reward)}
+                    >
+                      Complete
+                    </Button>
+                  </Box>
+                ))}
+              </Card>
+            </Grid>
 
-                </Box>
+          </Grid>
 
-              </>
-
-            )}
-
-          </CardContent>
-        </Card>
+        )}
       </Container>
     </>
   );
